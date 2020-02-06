@@ -6,17 +6,18 @@ Created on Oct 8, 2015
 '''
 
 import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
+# reload(sys)
+# sys.setdefaultencoding('utf-8')
 import json
 import boto3
 import twitter_to_es
 
-s3 = boto3.client('s3')
+s3 = boto3.client('s3', aws_access_key_id='AKIAUNEM5XJCISE637RI',
+    aws_secret_access_key='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')
 
 
 def lambda_handler(event, context):
-    print("Received event: " + json.dumps(event, indent=2))
+    # print("Received event: " + json.dumps(event, indent=2))
 
     # Get the object from the event and show its content type
     bucket = event['Records'][0]['s3']['bucket']['name']
@@ -35,9 +36,12 @@ def lambda_handler(event, context):
     try:
         s3_file_content = response['Body'].read()
         #clean trailing comma
-        if s3_file_content.endswith(',\n'):
-            s3_file_content = s3_file_content[:-2]
-        tweets_str = '['+s3_file_content+']'
+        tweet_array = ','.join(s3_file_content.decode().split('\n'))
+
+        if tweet_array.endswith(','):
+            tweet_array = tweet_array[:-1]
+
+        tweets_str = '['+tweet_array+']'
         tweets = json.loads(tweets_str)
    
     except Exception as e:
@@ -57,14 +61,14 @@ def lambda_handler(event, context):
 
 if __name__ == '__main__':
     event = {
-	    'Records': [
+	    "Records": [
 		    {
-			    's3': {
-				    'bucket': {
-					    'name': 'YOUR_BUCKET'
+			    "s3": {
+				    "bucket": {
+					    "name": "botvador-data-lake-tweetsbucket-1gzszvp00ooua"
 				    },
-				    'object': {
-					    'key': 'YOUR_KEY'
+				    "object": {
+					    "key": "raw/2020/01/23/07/botvador-data-lake-IngestionFirehoseStream-3DIDVNM2X421-1-2020-01-23-07-12-19-a4f81ff3-c16b-4da8-ae14-05964668e719"
 				    }
 			    }
 		    }
