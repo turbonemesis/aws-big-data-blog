@@ -10,7 +10,8 @@ import sys
 # sys.setdefaultencoding('utf-8')
 import json
 import boto3
-import twitter_to_es
+# import twitter_to_es
+import github_to_es
 
 s3 = boto3.client('s3', aws_access_key_id='AKIAUNEM5XJCISE637RI',
     aws_secret_access_key='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')
@@ -36,13 +37,13 @@ def lambda_handler(event, context):
     try:
         s3_file_content = response['Body'].read()
         #clean trailing comma
-        tweet_array = ','.join(s3_file_content.decode().split('\n'))
+        resource_array = ','.join(s3_file_content.decode().split('\n'))
 
-        if tweet_array.endswith(','):
-            tweet_array = tweet_array[:-1]
+        if resource_array.endswith(','):
+            resource_array = resource_array[:-1]
 
-        tweets_str = '['+tweet_array+']'
-        tweets = json.loads(tweets_str)
+        resources_str = '['+resource_array+']'
+        resources = json.loads(resources_str)
    
     except Exception as e:
         print(e)
@@ -51,7 +52,7 @@ def lambda_handler(event, context):
     
     # Load data into ES
     try:
-        twitter_to_es.load(tweets)
+        github_to_es.load(resources)
 
     except Exception as e:
         print(e)
@@ -65,10 +66,10 @@ if __name__ == '__main__':
 		    {
 			    "s3": {
 				    "bucket": {
-					    "name": "botvador-data-lake-tweetsbucket-1gzszvp00ooua"
+					    "name": "github-data-lake"
 				    },
 				    "object": {
-					    "key": "raw/2020/01/23/07/botvador-data-lake-IngestionFirehoseStream-3DIDVNM2X421-1-2020-01-23-07-12-19-a4f81ff3-c16b-4da8-ae14-05964668e719"
+					    "key": "raw/2020/02/09/08/github-data-lake-IngestionFirehoseStream-1-2020-02-09-08-13-35-43864005-20d6-4bad-87c4-3b978c6297a4"
 				    }
 			    }
 		    }
